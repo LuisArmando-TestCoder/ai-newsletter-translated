@@ -1,5 +1,3 @@
-// cron_scheduler.ts
-
 import { CronJob } from "npm:cron";
 
 /**

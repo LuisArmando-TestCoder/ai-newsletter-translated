@@ -1,5 +1,3 @@
-// subscription_api.ts
-
 import type { Request, Response, Express } from "npm:express";
 // We assume you have a shared database connection from "database_setup.ts"
 import { db } from "./database_setup.ts";

@@ -1,5 +1,3 @@
-// main.ts
-
 import express from "npm:express"; // Express via npm in Deno
 import config from "./config.ts"; // Deno import assertion for JSON
 // import { initializeDatabase } from "./database_setup.ts";

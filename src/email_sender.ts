@@ -1,5 +1,3 @@
-// email_sender.ts
-
 import nodemailer from "npm:nodemailer";
 import config from "./config.ts";
 
