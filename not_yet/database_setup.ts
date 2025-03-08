@@ -1,7 +1,7 @@
 // database_setup.ts
 
 import { Database } from "npm:turso-sdk"; // Use npm: prefix in Deno
-import config from "./config"
+import config from "../../config"
 
 /**
  * Initializes the Turso database:

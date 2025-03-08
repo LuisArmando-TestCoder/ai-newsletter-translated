@@ -7,7 +7,7 @@ import config from "./config.ts"; // Deno import assertion for JSON
 // import { scheduleTasks } from "./cron_scheduler.ts";
 import { scrapeAllSources } from "./scraper.ts";
 import { translateArticles } from "./translate.ts";
-import { sendEmails } from "./email_sender.ts";
+import { sendEmails } from "../email_sender.ts";
 
 /**
  * Orchestrates the newsletter flow:
