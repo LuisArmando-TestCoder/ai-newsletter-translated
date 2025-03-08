@@ -1,0 +1,11 @@
+Global Project Context: The D-E-N-O-A-P Newsletter System is an AI-driven news aggregation and distribution tool aimed at creating a fully autonomous newsletter system. It scrapes news articles from predefined sources, translates them into a target language using OpenAI’s GPT-4 API, and sends them to subscribers via email. The system manages subscriptions through an API and operates automatically through scheduled tasks, ensuring seamless and scalable distribution of curated content.
+
+File List:
+scraper.ts: Script to scrape news articles from defined sources.
+translate.ts: Module to translate scraped articles using OpenAI GPT-4 API.
+email_sender.ts: Sends emails with translated articles to subscribers.
+subscription_api.ts: Provides API endpoints for subscribing and unsubscribing users.
+cron_scheduler.ts: Schedules the automatic execution of the newsletter process.
+database_setup.ts: Initializes and sets up the Turso database schema for storing subscribers.
+config.json: JSON file containing configuration settings for news sources, translation language, and other system parameters.
+main.ts: Entry point to coordinate the entire process and manage execution flow.

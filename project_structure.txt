@@ -1,0 +1,8 @@
+scraper.ts: Script to scrape news articles from defined sources.  
+translate.ts: Module to translate scraped articles using OpenAI GPT-4 API.  
+email_sender.ts: Sends emails with translated articles to subscribers.  
+subscription_api.ts: Provides API endpoints for subscribing and unsubscribing users.  
+cron_scheduler.ts: Schedules the automatic execution of the newsletter process.  
+database_setup.ts: Initializes and sets up the Turso database schema for storing subscribers.  
+config.json: JSON file containing configuration settings for news sources, translation language, and other system parameters.  
+main.ts: Entry point to coordinate the entire process and manage execution flow.
