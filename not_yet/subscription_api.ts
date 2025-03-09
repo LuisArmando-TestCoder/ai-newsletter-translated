@@ -1,6 +1,6 @@
 import type { Request, Response, Express } from "npm:express";
 // We assume you have a shared database connection from "database_setup.ts"
-import { db } from "./database_setup.ts";
+import { db } from "../src/database_setup.ts";
 
 /**
  * Attaches subscription-related routes (subscribe, unsubscribe, status) to the provided Express app.

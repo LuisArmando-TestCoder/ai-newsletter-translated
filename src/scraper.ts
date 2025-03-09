@@ -1,14 +1,34 @@
 import * as cheerio from "npm:cheerio"; // For Deno: cheerio via NPM
 import { Article, NewsSource } from "./types.ts";
 import { callGPT4 } from "./callChatGPT4.ts";
-import config from "./config.ts";
 
 /**
- * Scrapes a single news source and returns an array of Article objects.
+ * Scrapes a single news source and returns an Article object.
+ *
+ * @example
+ * const source: NewsSource = {
+ *   url: "https://example.com",
+ *   titleSelector: ".article-title",
+ *   linkSelector: ".article-link",
+ *   contentSelector: ".article-content",
+ * };
+ * const article = await scrapeSource(source);
+ * console.log(article);
+ *
+ * @param source - A news source object containing the URL and CSS selectors.
+ * @returns A promise that resolves to an Article object or undefined if scraping fails.
  */
-async function scrapeSource(source: NewsSource): Promise<Article | undefined> {
+async function /* `scrapeSource` is a function that scrapes a single news source by performing the
+following steps: */
+scrapeSource(
+  source: NewsSource,
+  translationLanguage: string
+): Promise<Article | undefined> {
   try {
-    const { title, link } = await getMostInterestingArticle(source);
+    const { title, link } = await getMostInterestingArticle(
+      source,
+      translationLanguage
+    );
 
     let composedLink = link;
 
@@ -42,14 +62,29 @@ async function scrapeSource(source: NewsSource): Promise<Article | undefined> {
   }
 }
 
-async function getMostInterestingArticle(source: NewsSource): Article {
+/**
+ * Determines and returns the most interesting article from a given news source using GPT-4.
+ *
+ * @example
+ * const source: NewsSource = {
+ *   url: "https://example.com",
+ *   titleSelector: ".article-title",
+ *   linkSelector: ".article-link",
+ *   contentSelector: ".article-content",
+ * };
+ * const interestingArticle = await getMostInterestingArticle(source);
+ * console.log(interestingArticle);
+ *
+ * @param source - A news source object containing the URL and CSS selectors.
+ * @returns A promise that resolves to an Article object with title, an empty content string, and link.
+ */
+async function getMostInterestingArticle(
+  source: NewsSource,
+  translationLanguage: string
+): Promise<Article> {
   const response = await fetch(source.url);
   const html = await response.text();
   const $ = cheerio.load(html);
-
-  // console.log("source.titleSelector", source.titleSelector);
-  // console.log("source.linkSelector", source.linkSelector);
-  // console.log("[...$(source.titleSelector)]", [...$(source.titleSelector)]);
 
   const titles = $(source.titleSelector)
     .toArray()
@@ -62,7 +97,7 @@ async function getMostInterestingArticle(source: NewsSource): Article {
     await callGPT4(
       `
       Dame el índice y la línea de la noticia más interesante 
-      para un extranjero que habla ${config.translationLanguage}} 
+      para un extranjero que habla ${translationLanguage} 
       que acaba de pasarse a vivir permanentemente en el país, 
       lo cual añada valor y contexto necesario a su estadía, 
       y lo cual le emocione por el interés que le causa en la información procedente, 
@@ -75,52 +110,46 @@ async function getMostInterestingArticle(source: NewsSource): Article {
     )
   ).split(":")[0];
 
-  // console.log("index", index);
-  // console.log("titles", titles);
-  // console.log("links", links);
-
   return {
     title: titles[index],
     content: "",
     link: links[index] || "",
   };
 }
+
 /**
- * Scrapes all provided news sources in parallel and returns a flat array of Articles.
+ * Scrapes all provided news sources in parallel and returns a flat array of Article objects.
+ *
+ * @example
+ * const sources: NewsSource[] = [
+ *   {
+ *     url: "https://news1.com",
+ *     titleSelector: ".title",
+ *     linkSelector: ".link",
+ *     contentSelector: ".content",
+ *   },
+ *   {
+ *     url: "https://news2.com",
+ *     titleSelector: ".title",
+ *     linkSelector: ".link",
+ *     contentSelector: ".content",
+ *   },
+ * ];
+ * const articles = await scrapeAllSources(sources);
+ * console.log(articles);
+ *
+ * @param sources - An array of NewsSource objects.
+ * @returns A promise that resolves to a flat array of Article objects or undefined if none are found.
  */
 export async function scrapeAllSources(
-  sources: NewsSource[]
-): Promise<Article[]> {
-  const scrapePromises = sources.map((source) => scrapeSource(source));
+  sources: NewsSource[],
+  translationLanguage: string
+): Promise<Article[] | undefined> {
+  const scrapePromises = sources.map((source) =>
+    scrapeSource(source, translationLanguage)
+  );
   const articlesArrays = await Promise.all(scrapePromises);
-  return articlesArrays.flat();
+  return articlesArrays
+    ?.filter((article): article is Article => article !== undefined)
+    .flat();
 }
-
-/**
- * If this file is run directly (e.g. `deno run scraper.ts`),
- * we'll attempt to load a default config and scrape all sources.
- */
-// if (import.meta.main) {
-//   // Option 1: If you want to load config from a local file:
-//   // import config from './config.json' assert { type: 'json' };
-//   // const sources = config.newsSources as NewsSource[];
-
-//   // Option 2: Hard-code or dynamically set your sources here:
-//   const sources: NewsSource[] = [
-//     {
-//       name: "Example News",
-//       url: "https://examplenews.com",
-//       articleSelector: ".article",
-//       titleSelector: "h2.title",
-//       contentSelector: "p.body",
-//       linkSelector: "a.more-link",
-//     },
-//   ];
-
-//   (async () => {
-//     const articles = await scrapeAllSources(sources);
-//     console.log(`Scraped ${articles.length} articles.`);
-
-//     // Additional processing like translation or storage can be done here.
-//   })();
-// }

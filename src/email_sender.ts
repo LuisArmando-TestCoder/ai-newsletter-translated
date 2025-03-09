@@ -2,8 +2,19 @@ import nodemailer from "npm:nodemailer";
 import config from "./config.ts";
 
 /**
- * Validate that a given value is a non-empty string.
+ * Validates that a given value is a non-empty string.
  * Throws an error if invalid.
+ *
+ * @example
+ * // Valid usage:
+ * validateEmailString("example@example.com", "email");
+ *
+ * // Invalid usage (throws an error):
+ * validateEmailString("", "email");
+ *
+ * @param value - The value to validate.
+ * @param fieldName - The field name used in the error message.
+ * @throws {Error} If the value is not a non-empty string.
  */
 function validateEmailString(value: unknown, fieldName: string): void {
   if (typeof value !== "string" || value.trim() === "") {
@@ -28,7 +39,11 @@ if (!host || !port || !auth?.user || !auth?.pass) {
 }
 
 /**
- * Create Nodemailer transporter
+ * Creates a Nodemailer transporter.
+ *
+ * @example
+ * // This transporter is used internally by sendEmail.
+ * console.log(transporter);
  */
 const transporter = nodemailer.createTransport({
   host,
@@ -40,9 +55,14 @@ const transporter = nodemailer.createTransport({
 /**
  * Sends a single email to a specified recipient.
  *
- * @param recipientEmail - The recipient's email address
- * @param subject - The email subject
- * @param content - The HTML content of the email
+ * @example
+ * // Example usage:
+ * await sendEmail("recipient@example.com", "Welcome!", "<p>Hello, welcome to our newsletter!</p>");
+ *
+ * @param recipientEmail - The recipient's email address.
+ * @param subject - The email subject.
+ * @param content - The HTML content of the email.
+ * @returns A promise that resolves when the email is sent.
  */
 export async function sendEmail(
   recipientEmail: string,
@@ -72,7 +92,17 @@ export async function sendEmail(
 /**
  * Builds an HTML-formatted string containing the newsletter articles.
  *
- * @param articles - An array of article objects (must contain title & content)
+ * @example
+ * // Example usage:
+ * const articles = [
+ *   { title: "News 1", content: "<p>Content for news 1</p>" },
+ *   { title: "News 2", content: "<p>Content for news 2</p>" }
+ * ];
+ * const emailHtml = generateEmailContent(articles);
+ * console.log(emailHtml);
+ *
+ * @param articles - An array of article objects (each must contain a title & content).
+ * @returns An HTML string that can be used as email content.
  */
 export function generateEmailContent(
   articles: Array<{ title: string; content: string }>
@@ -99,7 +129,7 @@ export function generateEmailContent(
             >
               <!-- Header Section -->
               <tr>
-                <td align="center" style="background-color:#022b3a; padding: 20px;">
+                <td align="center" style="background-color:#000000; padding: 20px;">
                   <h1 style="
                     margin:0;
                     color:#ffffff;
@@ -121,7 +151,7 @@ export function generateEmailContent(
                     color:#333333;
                     line-height:1.5;
                   ">
-                    Hi Mudanzas Internacionales community,
+                    Hi, Mudanzas Internacionales community,
                   </p>
                 </td>
               </tr>
@@ -166,7 +196,7 @@ export function generateEmailContent(
                 <td 
                   align="center" 
                   style="
-                    background-color:#022b3a;
+                    background-color:#000000;
                     padding: 20px;
                     color:#ffffff;
                     font-family:Arial, Helvetica, sans-serif;
@@ -190,8 +220,17 @@ export function generateEmailContent(
 /**
  * Sends translated articles to a list of subscriber emails.
  *
- * @param subscribers - An array of valid email addresses
- * @param articles - An array of articles with { title, content }
+ * @example
+ * // Example usage:
+ * const subscribers = ["user1@example.com", "user2@example.com"];
+ * const articles = [
+ *   { title: "News Update", content: "<p>Breaking news content...</p>" }
+ * ];
+ * await sendEmails(subscribers, articles);
+ *
+ * @param subscribers - An array of valid email addresses.
+ * @param articles - An array of articles, each containing a title and content.
+ * @returns A promise that resolves when all emails have been sent.
  */
 export async function sendEmails(
   subscribers: string[],

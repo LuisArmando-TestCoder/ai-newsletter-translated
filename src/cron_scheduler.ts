@@ -30,17 +30,3 @@ export function scheduleTasks(
   job.start();
   console.log("Cron job started.");
 }
-
-/**
- * If you want to test this file standalone, you can run:
- *   deno run --allow-net --allow-read cron_scheduler.ts
- * and see the console logs, but typically you'll import `scheduleTasks`
- * in your main file and call it there.
- */
-if (import.meta.main) {
-  console.log("cron_scheduler.ts ran directly. Example usage:");
-  scheduleTasks(async () => {
-    console.log(`[${new Date().toISOString()}] Running scheduled task...`);
-    // Your actual task logic here
-  }, "*/1 * * * *"); // Runs every minute for demonstration
-}

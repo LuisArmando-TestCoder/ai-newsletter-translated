@@ -4,7 +4,6 @@ export interface Article {
   link: string;
 }
 
-// Interface for the news source
 export interface NewsSource {
   type: string;
   url: string;
@@ -14,3 +13,11 @@ export interface NewsSource {
   linkSelector: string;
 }
 [];
+
+export interface NewsletterUser {
+  email: string;
+  name: string;
+  bio: string;
+  language: string; // ISO 639-1 language code
+  countryOfResidence: string; // Alpha-2 country code
+}
