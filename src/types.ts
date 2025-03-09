@@ -7,7 +7,6 @@ export interface Article {
 export interface NewsSource {
   type: string;
   url: string;
-  articleSelector: string;
   titleSelector: string;
   contentSelector: string;
   linkSelector: string;

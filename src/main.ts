@@ -11,6 +11,7 @@ import {
   getUsersGroupedByLanguageAndCountry,
   updateNewsletterUser,
 } from "./database_setup.ts";
+import { setupSubscriptionAPI } from "./subscription_api.ts";
 
 /**
  * Orchestrates the newsletter flow:
@@ -45,9 +46,9 @@ async function processNewsletter(): Promise<void> {
       for (const [language, languagesGroup] of Object.entries(countriesGroup)) {
         if (languagesGroup.length === 0) continue;
 
-        console.log("languagesGroup", languagesGroup)
-        console.log("countryOfResidence", countryOfResidence)
-        console.log("language", language)
+        console.log("languagesGroup", languagesGroup);
+        console.log("countryOfResidence", countryOfResidence);
+        console.log("language", language);
 
         // Find the news source that has the same country alpha-2 code.
         const source = config.newsSources.find(
@@ -123,6 +124,7 @@ async function processNewsletter(): Promise<void> {
 function createServer(): void {
   const app = express();
   app.use(express.json());
+  setupSubscriptionAPI(app);
 
   // -----------------------------
   // 1) Add New User
