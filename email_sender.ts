@@ -126,7 +126,7 @@ export async function sendEmails({
   const emailPromises = subscribers.map(async (subscriber) => {
     const content = generateEmailContent(
       articles,
-      `/unsubscribe/${subscriber}`
+      `https://ai-newsletter-translated.onrender.com/unsubscribe/${subscriber}`
     );
     try {
       await sendEmail({
