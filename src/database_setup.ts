@@ -10,6 +10,14 @@ const projectId: string = serviceAccount.project_id;
 
 /**
  * Convert a PEM-formatted key into an ArrayBuffer.
+ *
+ * @example
+ * const pem = "-----BEGIN PRIVATE KEY-----\nMIIEv...==\n-----END PRIVATE KEY-----";
+ * const arrayBuffer = pemToArrayBuffer(pem);
+ * console.log(arrayBuffer);
+ *
+ * @param pem - A PEM formatted private key string.
+ * @returns {ArrayBuffer} The ArrayBuffer representation of the PEM key.
  */
 function pemToArrayBuffer(pem: string): ArrayBuffer {
   // Remove PEM header, footer, and whitespace
@@ -28,6 +36,13 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
 
 /**
  * Generate an access token using the service account credentials.
+ *
+ * @example
+ * const token = await getAccessToken();
+ * console.log("Access token:", token);
+ *
+ * @returns {Promise<string>} A promise that resolves to the access token.
+ * @throws {Error} If the private key is missing or the token cannot be fetched.
  */
 async function getAccessToken(): Promise<string> {
   // Load the service account credentials
@@ -98,6 +113,20 @@ async function getAccessToken(): Promise<string> {
 
 /**
  * Helper function to convert a NewsletterUser to Firestore document format.
+ *
+ * @example
+ * const user: NewsletterUser = {
+ *   email: "user@example.com",
+ *   name: "John Doe",
+ *   bio: "Bio here",
+ *   language: "en",
+ *   countryOfResidence: "US"
+ * };
+ * const doc = convertToFirestoreDocument(user);
+ * console.log(doc);
+ *
+ * @param user - The NewsletterUser object.
+ * @returns {object} Firestore formatted document.
  */
 function convertToFirestoreDocument(user: NewsletterUser) {
   return {
@@ -113,6 +142,14 @@ function convertToFirestoreDocument(user: NewsletterUser) {
 
 /**
  * Helper function to convert a Firestore document into a NewsletterUser.
+ *
+ * @example
+ * // Given a Firestore document object `doc`:
+ * const user = convertFromFirestoreDocument(doc);
+ * console.log(user.email);
+ *
+ * @param doc - The Firestore document.
+ * @returns {NewsletterUser} The converted NewsletterUser object.
  */
 function convertFromFirestoreDocument(doc: any): NewsletterUser {
   const fields = doc.fields;
@@ -127,6 +164,14 @@ function convertFromFirestoreDocument(doc: any): NewsletterUser {
 
 /**
  * Helper function to convert partial NewsletterUser updates to Firestore fields.
+ *
+ * @example
+ * const updates = { name: "Jane Doe" };
+ * const fields = convertToFirestoreFields(updates);
+ * console.log(fields);
+ *
+ * @param updated - Partial NewsletterUser object with updated fields.
+ * @returns {object} Object formatted for Firestore update.
  */
 function convertToFirestoreFields(updated: Partial<NewsletterUser>): any {
   const fields: Record<string, any> = {};
@@ -138,16 +183,45 @@ function convertToFirestoreFields(updated: Partial<NewsletterUser>): any {
   return { fields };
 }
 
-// Basic validation functions remain the same
+/**
+ * Validates that the provided email is in a valid format.
+ *
+ * @example
+ * const valid = isValidEmail("test@example.com");
+ * console.log(valid); // true
+ *
+ * @param email - The email string to validate.
+ * @returns {boolean} True if the email is valid, false otherwise.
+ */
 function isValidEmail(email: string): boolean {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
 }
 
+/**
+ * Validates that the provided language code is exactly two letters.
+ *
+ * @example
+ * const valid = isValidLanguageCode("en");
+ * console.log(valid); // true
+ *
+ * @param lang - The language code string.
+ * @returns {boolean} True if valid, false otherwise.
+ */
 function isValidLanguageCode(lang: string): boolean {
   return /^[a-zA-Z]{2}$/.test(lang);
 }
 
+/**
+ * Validates that the provided country code is exactly two letters.
+ *
+ * @example
+ * const valid = isValidCountryCode("US");
+ * console.log(valid); // true
+ *
+ * @param code - The country code string.
+ * @returns {boolean} True if valid, false otherwise.
+ */
 function isValidCountryCode(code: string): boolean {
   return /^[a-zA-Z]{2}$/.test(code);
 }
@@ -155,6 +229,20 @@ function isValidCountryCode(code: string): boolean {
 /**
  * Adds a new newsletter user to Firestore using the REST API.
  * The user's email is used as the document ID.
+ *
+ * @example
+ * const user: NewsletterUser = {
+ *   email: "user@example.com",
+ *   name: "John Doe",
+ *   bio: "Bio here",
+ *   language: "en",
+ *   countryOfResidence: "US"
+ * };
+ * await addNewsletterUser(user);
+ *
+ * @param user - The NewsletterUser object to add.
+ * @returns {Promise<void>} A promise that resolves when the user is added.
+ * @throws {Error} If validation fails or Firestore returns an error.
  */
 export async function addNewsletterUser(user: NewsletterUser) {
   // Validate user fields
@@ -205,6 +293,18 @@ export async function addNewsletterUser(user: NewsletterUser) {
 /**
  * Updates an existing newsletter user.
  * If a new email is provided (different from the current email), performs a "rename" operation.
+ *
+ * @example
+ * // Update without changing email:
+ * await updateNewsletterUser("user@example.com", { name: "New Name" });
+ *
+ * // Update with email change:
+ * await updateNewsletterUser("old@example.com", { email: "new@example.com", name: "New Name" });
+ *
+ * @param email - The current email of the user (document ID).
+ * @param updatedUserData - Partial NewsletterUser object with updated fields.
+ * @returns {Promise<void>} A promise that resolves when the user is updated.
+ * @throws {Error} If validation fails or Firestore returns an error.
  */
 export async function updateNewsletterUser(
   email: string,
@@ -317,6 +417,13 @@ export async function updateNewsletterUser(
 
 /**
  * Deletes a newsletter user from Firestore by email.
+ *
+ * @example
+ * await deleteNewsletterUser("user@example.com");
+ *
+ * @param email - The email of the user to delete (document ID).
+ * @returns {Promise<void>} A promise that resolves when the user is deleted.
+ * @throws {Error} If the email is invalid or Firestore returns an error.
  */
 export async function deleteNewsletterUser(email: string) {
   if (!isValidEmail(email)) {
@@ -339,6 +446,12 @@ export async function deleteNewsletterUser(email: string) {
 /**
  * Retrieves all newsletter users and groups them by language and country.
  * Returns a matrix of grouped users.
+ *
+ * @example
+ * const groupedUsers = await getUsersGroupedByLanguageAndCountry();
+ * console.log(groupedUsers);
+ *
+ * @returns {Promise<Record<string, Record<string, NewsletterUser[]>>>} A promise that resolves to the grouped users.
  */
 export async function getUsersGroupedByLanguageAndCountry() {
   const accessToken = await getAccessToken();
@@ -363,7 +476,8 @@ export async function getUsersGroupedByLanguageAndCountry() {
   users.forEach((user) => {
     const { language, countryOfResidence } = user;
     groupedUsers[countryOfResidence] = groupedUsers[countryOfResidence] || {};
-    groupedUsers[countryOfResidence][language] = groupedUsers[countryOfResidence][language] || [];
+    groupedUsers[countryOfResidence][language] =
+      groupedUsers[countryOfResidence][language] || [];
     groupedUsers[countryOfResidence][language].push(user);
   });
 
@@ -372,6 +486,18 @@ export async function getUsersGroupedByLanguageAndCountry() {
 
 /**
  * Retrieves a newsletter user by email.
+ *
+ * @example
+ * const user = await getNewsletterUser("user@example.com");
+ * if (user) {
+ *   console.log(user);
+ * } else {
+ *   console.log("User not found.");
+ * }
+ *
+ * @param email - The email of the user to retrieve (document ID).
+ * @returns {Promise<NewsletterUser | null>} A promise that resolves to the user object or null if not found.
+ * @throws {Error} If the email is invalid or Firestore returns an error.
  */
 export async function getNewsletterUser(
   email: string

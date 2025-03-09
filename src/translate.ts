@@ -37,7 +37,7 @@ const translateArticle = async (
     ${article.title}
     
     While giving the following content a nice HTML structure, 
-    where the most important keywords are highlighted in bold,
+    where the most important keywords are highlighted in #ff6347 bold,
     making it friendly for people with ADHD:
 
     ${article.content}
