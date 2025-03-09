@@ -523,3 +523,193 @@ export async function getNewsletterUser(
   const doc = await resp.json();
   return convertFromFirestoreDocument(doc);
 }
+
+/**
+ * Posts a configuration document to Firestore using the REST API.
+ *
+ * This function converts the provided configuration object into Firestore's document
+ * format—preserving its nested schema—and posts it into the "configurations" collection
+ * under the specified document ID (defaulting to "defaultConfig").
+ *
+ * @example
+ * const configObject = {
+ *   port: 8000,
+ *   scheduleTime: "0 7 * * *",
+ *   newsSources: [
+ *     {
+ *       type: "website",
+ *       url: "https://www.tvn-2.com/",
+ *       titleSelector: ".content-title > a > h2",
+ *       contentSelector: ".bbnx-body",
+ *       linkSelector: ".content-title > a",
+ *       country: "PA"
+ *     }
+ *   ],
+ *   openAiApiKey: "sk-...",
+ *   email: {
+ *     host: "smtp.gmail.com",
+ *     port: 587,
+ *     auth: { user: "example@gmail.com", pass: "secret" },
+ *     senderName: "Translated Newsletter",
+ *     newsletterSubject: "Your Latest Translated Articles",
+ *     newsletterTitle: "Latest News"
+ *   }
+ * };
+ * await postConfigDocument(configObject);
+ *
+ * @param configObject - The configuration object to store in Firestore.
+ * @param documentId - Optional document ID (default is "defaultConfig").
+ * @returns {Promise<void>} A promise that resolves when the document is successfully posted.
+ * @throws {Error} If posting the document fails.
+ */
+export async function postConfigDocument(
+  configObject: any,
+  documentId: string = "defaultConfig"
+): Promise<void> {
+  // Helper function to recursively convert a JavaScript object to Firestore Value format.
+  function objectToFirestoreFields(obj: any): any {
+    if (obj === null) {
+      return { nullValue: null };
+    }
+    if (Array.isArray(obj)) {
+      return {
+        arrayValue: {
+          values: obj.map((item) => objectToFirestoreFields(item)),
+        },
+      };
+    }
+    switch (typeof obj) {
+      case "string":
+        return { stringValue: obj };
+      case "number":
+        return { doubleValue: obj };
+      case "boolean":
+        return { booleanValue: obj };
+      case "object":
+        const fields: Record<string, any> = {};
+        for (const key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            fields[key] = objectToFirestoreFields(obj[key]);
+          }
+        }
+        return { mapValue: { fields } };
+      default:
+        throw new Error(`Unsupported type: ${typeof obj}`);
+    }
+  }
+
+  // Convert the config object to Firestore document format.
+  const firestoreFields = objectToFirestoreFields(configObject);
+  // If configObject is an object, firestoreFields will have the form { mapValue: { fields: { ... } } }.
+  const documentBody = { fields: firestoreFields.mapValue.fields };
+
+  // Get the access token using the getAccessToken function from context.
+  const accessToken = await getAccessToken();
+
+  // Build the REST API URL for the "configurations" collection.
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/configurations?documentId=${encodeURIComponent(
+    documentId
+  )}`;
+
+  // Post the document to Firestore.
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(documentBody),
+  });
+
+  if (!resp.ok) {
+    throw new Error(
+      `Error posting configuration document: ${await resp.text()}`
+    );
+  }
+
+  console.log(
+    `Configuration document posted successfully with document ID: ${documentId}`
+  );
+}
+
+/**
+ * Retrieves a configuration document from Firestore using the REST API.
+ *
+ * This function fetches a configuration document stored in the "configurations" collection
+ * in Firestore and converts it to a plain JavaScript object. If the document is not found,
+ * the function returns null.
+ *
+ * @example
+ * // Retrieve the default configuration:
+ * const config = await getConfigDocument();
+ * if (config) {
+ *   console.log("Configuration:", config);
+ * } else {
+ *   console.log("Configuration document not found.");
+ * }
+ *
+ * @param documentId - (Optional) The ID of the configuration document. Defaults to "defaultConfig".
+ * @returns A promise that resolves to the configuration object, or null if not found.
+ * @throws {Error} If the retrieval fails.
+ */
+export async function getConfigDocument(
+  documentId: string = "defaultConfig"
+): Promise<any> {
+  // Get the access token using the existing getAccessToken() function.
+  const accessToken = await getAccessToken();
+
+  // Build the REST API URL for the configuration document.
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/configurations/${encodeURIComponent(
+    documentId
+  )}`;
+
+  // Fetch the document from Firestore.
+  const resp = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (resp.status === 404) {
+    console.log(`Configuration document "${documentId}" not found.`);
+    return null;
+  }
+
+  if (!resp.ok) {
+    throw new Error(
+      `Failed to retrieve configuration document: ${await resp.text()}`
+    );
+  }
+
+  const doc = await resp.json();
+
+  // Helper function to recursively convert Firestore document fields to a plain object.
+  function firestoreFieldsToObject(fields: any): any {
+    const result: Record<string, any> = {};
+    for (const key in fields) {
+      if (fields[key].stringValue !== undefined) {
+        result[key] = fields[key].stringValue;
+      } else if (fields[key].integerValue !== undefined) {
+        result[key] = Number(fields[key].integerValue);
+      } else if (fields[key].doubleValue !== undefined) {
+        result[key] = Number(fields[key].doubleValue);
+      } else if (fields[key].booleanValue !== undefined) {
+        result[key] = fields[key].booleanValue;
+      } else if (fields[key].nullValue !== undefined) {
+        result[key] = null;
+      } else if (fields[key].arrayValue !== undefined) {
+        result[key] = fields[key].arrayValue.values
+          ? fields[key].arrayValue.values.map(
+              (item: any) => firestoreFieldsToObject({ item }).item
+            )
+          : [];
+      } else if (fields[key].mapValue !== undefined) {
+        result[key] = firestoreFieldsToObject(fields[key].mapValue.fields);
+      }
+    }
+    return result;
+  }
+
+  return firestoreFieldsToObject(doc.fields);
+}
