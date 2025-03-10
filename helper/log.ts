@@ -1,3 +1,6 @@
 // Helper: Log messages with timestamp.
-export default (message: string): void =>
-  console.log(`[${new Date().toISOString()}] ${message}`);
+export default (...messages: any[]): void => {
+  messages.forEach((message) => {
+    console.log(`[${new Date().toISOString()}] ${message}`);
+  });
+};

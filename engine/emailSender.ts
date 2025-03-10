@@ -112,7 +112,7 @@ export async function sendEmails({
   const subject = mailConfigPack.newsletterSubject;
 
   const emailPromises = subscribers.map(async (subscriber) => {
-    const content = generateEmailContent(
+    const content = await generateEmailContent(
       articles,
       `${unsubscribeLink}/${subscriber}`
     );
