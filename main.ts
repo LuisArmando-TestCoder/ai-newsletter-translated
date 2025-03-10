@@ -1,11 +1,10 @@
 import express from "npm:express";
 import { scheduleTasks } from "./helper/cronScheduler.ts";
-import { getConfigDocument, postConfigDocument } from "./databaseSetup.ts";
-import subscriptionRouter from "./API/subscription/subscriptionRouter.ts";
+import subscriptionRouter from "./API/newsletter/subscriptionRouter.ts";
 import log from "./helper/log.ts";
-import asyncHandler from "./helper/asyncHandler.ts";
 import processNewsletter from "./engine/processNewsletter.ts";
-import configurationRouter from "./API/config/configurationRouter.ts";
+import configurationRouter from "./API/configuration/configurationRouter.ts";
+import getConfigDocument from "./db/configuration/getConfigDocument.ts";
 
 // Create and configure the Express server.
 async function createServer() {

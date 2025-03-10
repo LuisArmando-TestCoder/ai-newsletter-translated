@@ -1,6 +1,6 @@
 import type { Express } from "npm:express";
 import asyncHandler from "../../helper/asyncHandler.ts";
-import { updateNewsletterUser } from "../../databaseSetup.ts";
+import { updateNewsletterUser } from "../../db/newsletter/updateNewsletterUser.ts";
 
 export default (app: Express) => {
   app.put(

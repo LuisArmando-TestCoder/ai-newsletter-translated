@@ -1,10 +1,9 @@
 import type { Express } from "npm:express";
 import asyncHandler from "../../helper/asyncHandler.ts";
-import { postConfigDocument } from "../../databaseSetup.ts";
+import updateConfigDocument from "../../db/configuration/updateConfigDocument.ts";
 
 export default (app: Express) => {
-  // Endpoint: Post Configuration Document.
-  app.post(
+  app.put(
     "/config",
     asyncHandler(async (req, res) => {
       const configData = req.body;
@@ -12,10 +11,10 @@ export default (app: Express) => {
         return res.status(400).json({ error: "Invalid configuration data." });
       }
       const documentId = (req.query.documentId as string) || "defaultConfig";
-      await postConfigDocument(configData, documentId);
-      res.status(201).json({
-        message: `Configuration stored successfully with ID: ${documentId}`,
+      await updateConfigDocument(configData, documentId);
+      res.status(200).json({
+        message: `Configuration updated successfully with ID: ${documentId}`,
       });
     })
   );
-}
+};

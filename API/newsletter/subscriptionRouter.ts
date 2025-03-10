@@ -1,7 +1,8 @@
 import type { Express } from "npm:express";
-import subscribe from "./subscribe.ts";
-import unsubscribe from "./unsubscribe.ts";
-import updateSubscription from "./updateSubscription.ts";
+import subscribeEndpoint from "./subscribeEndpoint.ts";
+import unsubscribeEndpoint from "./unsubscribeEndpoint.ts";
+import updateSubscriptionEndpoint from "./updateSubscriptionEndpoint.ts";
+import getSubscriberEndpoint from "./getSubscriberEndpoint.ts";
 
 /**
  * Attaches subscription-related routes (subscribe, unsubscribe, and subscription-status)
@@ -23,7 +24,8 @@ import updateSubscription from "./updateSubscription.ts";
  * @param app - The Express application instance.
  */
 export default (app: Express) => {
-  subscribe(app);
-  unsubscribe(app);
-  updateSubscription(app);
+  subscribeEndpoint(app);
+  unsubscribeEndpoint(app);
+  updateSubscriptionEndpoint(app);
+  getSubscriberEndpoint(app);
 };

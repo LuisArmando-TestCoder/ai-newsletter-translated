@@ -1,6 +1,6 @@
 import type { Express } from "npm:express";
-import { deleteNewsletterUser } from "../../databaseSetup.ts";
 import asyncHandler from "../../helper/asyncHandler.ts";
+import deleteNewsletterUser from "../../db/newsletter/deleteNewsletterUser.ts";
 
 export default (app: Express) => {
   // Endpoint: Unsubscribe User.

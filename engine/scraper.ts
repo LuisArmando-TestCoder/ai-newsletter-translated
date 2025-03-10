@@ -46,8 +46,8 @@ const scrapeSource = (config) =>
 
       const responseContent = await fetch(composedLink);
       const htmlContent = await responseContent.text();
-      const $$ = cheerio.load(htmlContent);
-      const content = $$(source.contentSelector).text().trim();
+      const $ = cheerio.load(htmlContent);
+      const content = $(source.contentSelector).text().trim();
 
       if (title && content && composedLink) {
         const article: Article = {

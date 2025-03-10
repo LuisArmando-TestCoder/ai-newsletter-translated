@@ -1,5 +1,5 @@
-import generateEmailContent from "../generateEmailContent.ts";
-import validateEmailString from "./validateEmailString.ts";
+import generateEmailContent from "./generateEmailContent.ts";
+import validateEmailString from "../helper/validateEmailString.ts";
 import { MailConfigPack } from "../types.ts";
 
 /**

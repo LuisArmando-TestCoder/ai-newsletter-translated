@@ -1,10 +1,10 @@
-import { getUsersGroupedByLanguageAndCountry } from "../databaseSetup.ts";
-import { sendEmails } from "../helper/emailSender.ts";
+import { sendEmails } from "./emailSender.ts";
 import errorLog from "../helper/errorLog.ts";
 import getMailConfigPack from "../helper/getMailConfigPack.ts";
 import log from "../helper/log.ts";
 import { scrapeAllSources } from "./scraper.ts";
 import { translateArticles } from "./translate.ts";
+import getUsersGroupedByLanguageAndCountry from "../db/newsletter/getUsersGroupedByLanguageAndCountry.ts";
 
 const processUserGroup = async (
   config: any,
@@ -54,7 +54,7 @@ const processUserGroup = async (
       subscribers: emails,
       articles: translatedArticles,
       mailConfigPack,
-      unsubscribeLink: `https://ai-newsletter-translated.onrender.com/unsubscribe`
+      unsubscribeLink: `https://ai-newsletter-translated.onrender.com/unsubscribe`,
     });
 
     log(
