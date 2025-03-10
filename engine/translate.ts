@@ -44,7 +44,8 @@ const translateArticle =
       ${article.content}
 
       Warning: Be wary of providing only the translation of the article. 
-      No notes or any extra text should be added.
+      No notes or any extra text should be added. 
+      Exclude any links present inside the article.
       `,
       config.openAiApiKey
     );
