@@ -1,5 +1,7 @@
-import projectId from "../projectId.ts";
-import getAccessToken from "../../helper/getAccessToken.ts";
+import toFirestoreValue from "../../helper/firestore/toFirestoreValue.ts";
+import { getFirestoreCollectionUrl } from "../../helper/firestore/firestoreUrlGetters.ts";
+import fetchWithAuth from "../../helper/fetchWithAuth.ts";
+import log from "../../helper/log.ts";
 
 /**
  * Posts a configuration document to Firestore using the REST API.
@@ -43,68 +45,21 @@ export default async (
   configObject: any,
   documentId: string = "defaultConfig"
 ): Promise<void> => {
-  // Helper function to recursively convert a JavaScript object to Firestore Value format.
-  function objectToFirestoreFields(obj: any): any {
-    if (obj === null) {
-      return { nullValue: null };
-    }
-    if (Array.isArray(obj)) {
-      return {
-        arrayValue: {
-          values: obj.map((item) => objectToFirestoreFields(item)),
-        },
-      };
-    }
-    switch (typeof obj) {
-      case "string":
-        return { stringValue: obj };
-      case "number":
-        return { doubleValue: obj };
-      case "boolean":
-        return { booleanValue: obj };
-      case "object":
-        const fields: Record<string, any> = {};
-        for (const key in obj) {
-          if (obj.hasOwnProperty(key)) {
-            fields[key] = objectToFirestoreFields(obj[key]);
-          }
-        }
-        return { mapValue: { fields } };
-      default:
-        throw new Error(`Unsupported type: ${typeof obj}`);
-    }
+  const firestoreFields = toFirestoreValue(configObject);
+  if (!firestoreFields || !firestoreFields.mapValue) {
+    throw new Error("Invalid configuration object.");
   }
-
-  // Convert the config object to Firestore document format.
-  const firestoreFields = objectToFirestoreFields(configObject);
-  // If configObject is an object, firestoreFields will have the form { mapValue: { fields: { ... } } }.
   const documentBody = { fields: firestoreFields.mapValue.fields };
-
-  // Get the access token using the getAccessToken function from context.
-  const accessToken = await getAccessToken();
-
-  // Build the REST API URL for the "configurations" collection.
-  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/configurations?documentId=${encodeURIComponent(
-    documentId
-  )}`;
-
-  // Post the document to Firestore.
-  const resp = await fetch(url, {
+  const url = getFirestoreCollectionUrl(documentId);
+  const response = await fetchWithAuth(url, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(documentBody),
   });
-
-  if (!resp.ok) {
-    throw new Error(
-      `Error posting configuration document: ${await resp.text()}`
-    );
-  }
-
-  console.log(
-    `Configuration document posted successfully with document ID: ${documentId}`
+  log(
+    `
+        Configuration document posted successfully with document ID: ${documentId}
+        ${JSON.stringify(response, null, 2)}
+    `
   );
-}
+};

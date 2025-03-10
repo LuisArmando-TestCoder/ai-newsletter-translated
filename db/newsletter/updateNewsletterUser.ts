@@ -1,7 +1,7 @@
 import convertToFirestoreDocument from "../../helper/convert/convertToFirestoreDocument.ts";
 import convertToFirestoreFields from "../../helper/convertToFirestoreFields.ts";
 import fetchWithAuth from "../../helper/fetchWithAuth.ts";
-import firestoreNewsletterUsersUrl from "../../helper/firestoreNewsletterUsersUrl.ts";
+import { firestoreNewsletterUsersUrl } from "../../helper/firestore/firestoreUrlGetters.ts";
 import log from "../../helper/log.ts";
 import validateUser from "../../helper/validateUser.ts";
 import { NewsletterUser } from "../../types.ts";
