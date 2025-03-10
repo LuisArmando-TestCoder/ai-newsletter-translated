@@ -26,6 +26,8 @@ export function scheduleTasks(
     "UTC"
   );
 
+  callback();
+
   // Start the CronJob
   job.start();
   console.log("Cron job started.");

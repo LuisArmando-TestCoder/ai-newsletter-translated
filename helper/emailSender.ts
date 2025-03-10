@@ -1,21 +1,6 @@
-import generateEmailContent from "./generate_email_content.ts";
-import { MailConfigPack } from "./types.ts";
-
-/**
- * Checks if the provided value is a non-empty string.
- *
- * @example
- * validateEmailString("example@example.com", "email"); // No error thrown.
- *
- * @param value - The value to validate.
- * @param fieldName - The name of the field for error messages.
- * @throws {Error} If the value is not a non-empty string.
- */
-function validateEmailString(value: unknown, fieldName: string): void {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`Invalid ${fieldName}. Must be a non-empty string.`);
-  }
-}
+import generateEmailContent from "../generateEmailContent.ts";
+import validateEmailString from "./validateEmailString.ts";
+import { MailConfigPack } from "../types.ts";
 
 /**
  * Sends an email to a single recipient using the specified mail configuration.
@@ -85,16 +70,19 @@ export async function sendEmail({
  * @param subscribers - An array of subscriber email addresses.
  * @param articles - An array of articles, each with a title and content.
  * @param mailConfigPack - The mail configuration object with necessary email settings.
+ * @param unsubscribeLink - The unsubscribe base link to which the db subscriber email will be appended
  * @returns A promise that resolves when all emails have been sent.
  */
 export async function sendEmails({
   subscribers,
   articles,
   mailConfigPack,
+  unsubscribeLink,
 }: {
   subscribers: string[];
   articles: Array<{ title: string; content: string }>;
   mailConfigPack: MailConfigPack;
+  unsubscribeLink: string;
 }): Promise<void> {
   if (
     !Array.isArray(subscribers) ||
@@ -126,7 +114,7 @@ export async function sendEmails({
   const emailPromises = subscribers.map(async (subscriber) => {
     const content = generateEmailContent(
       articles,
-      `https://ai-newsletter-translated.onrender.com/unsubscribe/${subscriber}`
+      `${unsubscribeLink}/${subscriber}`
     );
     try {
       await sendEmail({

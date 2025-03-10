@@ -1,6 +1,6 @@
-import { Article } from "./types.ts";
+import { Article } from "../types.ts";
 
-import { callGPT4 } from "./callChatGPT4.ts";
+import { callGPT4 } from "../helper/callChatGPT4.ts";
 
 /**
  * Creates an async function that translates a single article into a target language using GPT-4.

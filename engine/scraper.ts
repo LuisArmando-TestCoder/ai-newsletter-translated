@@ -1,6 +1,6 @@
 import * as cheerio from "npm:cheerio"; // For Deno: cheerio via NPM
-import { Article, NewsSource } from "./types.ts";
-import { callGPT4 } from "./callChatGPT4.ts";
+import { Article, NewsSource } from "../types.ts";
+import { callGPT4 } from "../helper/callChatGPT4.ts";
 
 /**
  * Factory function that creates an asynchronous function to scrape a single news source.
